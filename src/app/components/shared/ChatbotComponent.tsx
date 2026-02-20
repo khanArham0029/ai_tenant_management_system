@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -21,7 +21,7 @@ export function ChatbotComponent({ userType }: ChatbotComponentProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: userType === 'owner' 
+      text: userType === 'owner'
         ? 'Hello! I\'m your property management assistant. I can help you with tenant inquiries, rent collection, maintenance requests, and more. How can I assist you today?'
         : 'Hello! I\'m here to help you with your tenancy. You can ask me about your agreement, submit maintenance requests, check your bills, or contact the property owner. How can I help?',
       sender: 'bot',
@@ -29,6 +29,15 @@ export function ChatbotComponent({ userType }: ChatbotComponentProps) {
     },
   ]);
   const [inputMessage, setInputMessage] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isOpen]);
 
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
@@ -97,7 +106,7 @@ export function ChatbotComponent({ userType }: ChatbotComponentProps) {
     }
   };
 
-  const quickReplies = userType === 'owner' 
+  const quickReplies = userType === 'owner'
     ? ['Check pending payments', 'View maintenance requests', 'Tenant contacts']
     : ['Submit maintenance request', 'View my bills', 'Contact owner'];
 
@@ -115,7 +124,7 @@ export function ChatbotComponent({ userType }: ChatbotComponentProps) {
 
       {/* Chat Window */}
       {isOpen && (
-        <Card className="fixed bottom-6 right-6 w-96 h-[500px] shadow-2xl z-50 flex flex-col">
+        <Card className="fixed bottom-6 right-6 w-96 h-[500px] shadow-2xl z-50 flex flex-col overflow-hidden border-gray-200">
           <CardHeader className="flex flex-row items-center justify-between pb-3 border-b">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center">
@@ -133,7 +142,7 @@ export function ChatbotComponent({ userType }: ChatbotComponentProps) {
             </Button>
           </CardHeader>
 
-          <ScrollArea className="flex-1 p-4">
+          <ScrollArea className="flex-1 min-h-0 p-4">
             <div className="space-y-4">
               {messages.map((message) => (
                 <div
@@ -146,11 +155,10 @@ export function ChatbotComponent({ userType }: ChatbotComponentProps) {
                     </div>
                   )}
                   <div
-                    className={`max-w-[75%] rounded-lg p-3 ${
-                      message.sender === 'user'
-                        ? 'bg-indigo-600 text-white'
-                        : 'bg-gray-100 text-gray-900'
-                    }`}
+                    className={`max-w-[75%] rounded-lg p-3 ${message.sender === 'user'
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-gray-100 text-gray-900'
+                      }`}
                   >
                     <p className="text-sm">{message.text}</p>
                     <p className={`text-xs mt-1 ${message.sender === 'user' ? 'text-indigo-200' : 'text-gray-500'}`}>
@@ -164,6 +172,7 @@ export function ChatbotComponent({ userType }: ChatbotComponentProps) {
                   )}
                 </div>
               ))}
+              <div ref={messagesEndRef} />
             </div>
           </ScrollArea>
 
@@ -191,16 +200,21 @@ export function ChatbotComponent({ userType }: ChatbotComponentProps) {
           )}
 
           {/* Input Area */}
-          <CardContent className="p-4 border-t">
-            <div className="flex gap-2">
+          <CardContent className="p-4 border-t bg-white m-0">
+            <div className="flex gap-2 items-center">
               <Input
                 placeholder="Type your message..."
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                className="rounded-full bg-gray-50 border-gray-200 focus-visible:ring-indigo-500 focus-visible:ring-offset-0 px-4 h-10"
               />
-              <Button onClick={handleSendMessage} disabled={!inputMessage.trim()}>
-                <Send className="w-4 h-4" />
+              <Button
+                onClick={handleSendMessage}
+                disabled={!inputMessage.trim()}
+                className="rounded-full w-10 h-10 p-0 flex-shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-transform active:scale-95 disabled:opacity-50"
+              >
+                <Send className="w-4 h-4 ml-[-2px]" />
               </Button>
             </div>
           </CardContent>
