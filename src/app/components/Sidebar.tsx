@@ -14,6 +14,8 @@ export interface SidebarItem {
 
 interface SidebarProps {
     items: SidebarItem[];
+    title?: string;
+    icon?: React.ReactNode;
     activeItemId: string;
     onItemClick: (id: string) => void;
     isCollapsed: boolean;
@@ -24,6 +26,8 @@ interface SidebarProps {
 
 export function Sidebar({
     items,
+    title,
+    icon,
     activeItemId,
     onItemClick,
     isCollapsed,
@@ -57,18 +61,20 @@ export function Sidebar({
             <div className={cn("flex items-center h-20 px-6", isCollapsed ? "justify-center px-0" : "")}>
                 <div className={cn(
                     "flex items-center justify-center rounded-lg flex-shrink-0",
-                    isDarkMode ? "bg-white" : "bg-[#2563EB]", // Blue logo box like "Cummo" mockup
+                    isDarkMode ? "bg-white/10" : "bg-[#013557]", // use original dark blue style
                     isCollapsed ? "w-10 h-10" : "w-8 h-8 mr-3"
                 )}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={isDarkMode ? "text-[#2563EB]" : "text-white"}>
-                        <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor" />
-                        <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+                    {icon ? icon : (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={isDarkMode ? "text-[#2563EB]" : "text-white"}>
+                            <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor" />
+                            <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    )}
                 </div>
                 {!isCollapsed && (
-                    <span className={cn("text-xl font-bold font-sans tracking-wide", isDarkMode ? "text-white" : "text-[#1E293B]")}>
-                        Cummo
+                    <span className={cn("text-base sm:text-[17px] font-bold font-sans tracking-wide leading-tight", isDarkMode ? "text-white" : "text-[#1E293B]")}>
+                        {title || "Cummo"}
                     </span>
                 )}
             </div>

@@ -48,6 +48,8 @@ export function DashboardLayout({
             >
                 <Sidebar
                     items={sidebarItems}
+                    title={headerTitle}
+                    icon={headerIcon}
                     activeItemId={activeItemId}
                     onItemClick={(id) => {
                         onSidebarItemClick(id);
@@ -79,25 +81,12 @@ export function DashboardLayout({
                                 <span className="sr-only">Open sidebar</span>
                             </button>
 
-                            {(headerTitle || headerIcon) && (
+                            {headerSubtitle && (
                                 <div className="flex items-center gap-3">
-                                    {headerIcon && (
-                                        <div className={cn(
-                                            "w-10 h-10 rounded-lg flex items-center justify-center shrink-0",
-                                            isDarkMode ? "bg-[#1E293B]" : "bg-[#013557]"
-                                        )}>
-                                            {headerIcon}
-                                        </div>
-                                    )}
                                     <div className="hidden sm:block">
                                         <h1 className={cn("text-lg sm:text-xl font-semibold", isDarkMode ? "text-white" : "text-[#013557]")}>
-                                            {headerTitle}
+                                            {headerSubtitle}
                                         </h1>
-                                        {headerSubtitle && (
-                                            <p className={cn("text-xs sm:text-sm", isDarkMode ? "text-gray-400" : "text-gray-500")}>
-                                                {headerSubtitle}
-                                            </p>
-                                        )}
                                     </div>
                                 </div>
                             )}
