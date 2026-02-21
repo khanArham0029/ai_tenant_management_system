@@ -2,8 +2,22 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { MessageCircle, X, Send, Bot, User } from 'lucide-react';
+import { X, Send, User } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
+
+const AIAssistantIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+  >
+    <path d="M21 11.5V6C21 4.34315 19.6569 3 18 3H6C4.34315 3 3 4.34315 3 6V18C3 19.6569 4.34315 21 6 21H12.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M7 16L9.5 8.5L12 16M7.5 13H11.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M14.5 9V16" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M19.5 14C19.5 14 19.8 17.2 23 17.5C19.8 17.8 19.5 21 19.5 21C19.5 21 19.2 17.8 16 17.5C19.2 17.2 19.5 14 19.5 14Z" fill="currentColor" stroke="none" />
+  </svg>
+);
 
 interface Message {
   id: string;
@@ -115,10 +129,10 @@ export function ChatbotComponent({ userType }: ChatbotComponentProps) {
       {/* Chat Button */}
       {!isOpen && (
         <Button
-          className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-lg z-50"
+          className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-lg z-50 p-0 hover:scale-105 transition-transform"
           onClick={() => setIsOpen(true)}
         >
-          <MessageCircle className="w-6 h-6" />
+          <AIAssistantIcon className="w-7 h-7" />
         </Button>
       )}
 
@@ -126,9 +140,9 @@ export function ChatbotComponent({ userType }: ChatbotComponentProps) {
       {isOpen && (
         <Card className="fixed bottom-6 right-6 w-96 h-[500px] shadow-2xl z-50 flex flex-col overflow-hidden border-gray-200">
           <CardHeader className="flex flex-row items-center justify-between pb-3 border-b">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center">
-                <Bot className="w-5 h-5 text-white" />
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
+                <AIAssistantIcon className="w-5 h-5 text-white" />
               </div>
               <CardTitle className="text-lg">Assistant</CardTitle>
             </div>
@@ -150,8 +164,8 @@ export function ChatbotComponent({ userType }: ChatbotComponentProps) {
                   className={`flex gap-2 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   {message.sender === 'bot' && (
-                    <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Bot className="w-4 h-4 text-indigo-600" />
+                    <div className="w-8 h-8 bg-indigo-100 rounded-md flex items-center justify-center flex-shrink-0">
+                      <AIAssistantIcon className="w-4 h-4 text-indigo-600" />
                     </div>
                   )}
                   <div
