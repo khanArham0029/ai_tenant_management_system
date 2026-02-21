@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -6,11 +6,14 @@ import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { Plus, Phone, CreditCard, Calendar, Pencil, Trash2 } from 'lucide-react';
-import { mockTenants, Tenant } from '../../data/mockData';
+import { Plus, Phone, CreditCard, Calendar, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { Tenant } from '../../data/mockData';
+import { getTenants, addTenant as apiAddTenant, updateTenant as apiUpdateTenant, deleteTenant as apiDeleteTenant } from '../../services/api';
 
 export function TenantsManagement() {
-  const [tenants, setTenants] = useState<Tenant[]>(mockTenants);
+  const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newTenant, setNewTenant] = useState<Partial<Tenant>>({
     name: '',
@@ -29,32 +32,43 @@ export function TenantsManagement() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [tenantToDelete, setTenantToDelete] = useState<Tenant | null>(null);
 
-  const handleAddTenant = () => {
-    const tenant: Tenant = {
-      id: String(Date.now()),
-      name: newTenant.name || '',
-      unit: newTenant.unit || '',
-      phone: newTenant.phone || '',
-      cnic: newTenant.cnic || '',
-      monthlyRent: newTenant.monthlyRent || 0,
-      agreementStart: newTenant.agreementStart || '',
-      agreementEnd: newTenant.agreementEnd || '',
-      status: 'active',
-      securityDeposit: newTenant.securityDeposit || 0,
-    };
+  useEffect(() => {
+    fetchTenants();
+  }, []);
 
-    setTenants([...tenants, tenant]);
-    setIsAddDialogOpen(false);
-    setNewTenant({
-      name: '',
-      unit: '',
-      phone: '',
-      cnic: '',
-      monthlyRent: 0,
-      agreementStart: '',
-      agreementEnd: '',
-      securityDeposit: 0,
-    });
+  const fetchTenants = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getTenants();
+      setTenants(data);
+    } catch (error) {
+      console.error('Failed to fetch tenants:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddTenant = async () => {
+    setIsSubmitting(true);
+    try {
+      const newCreatedTenant = await apiAddTenant(newTenant);
+      setTenants([newCreatedTenant, ...tenants]);
+      setIsAddDialogOpen(false);
+      setNewTenant({
+        name: '',
+        unit: '',
+        phone: '',
+        cnic: '',
+        monthlyRent: 0,
+        agreementStart: '',
+        agreementEnd: '',
+        securityDeposit: 0,
+      });
+    } catch (error) {
+      console.error('Failed to add tenant:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const openEditDialog = (tenant: Tenant) => {
@@ -62,11 +76,19 @@ export function TenantsManagement() {
     setIsEditDialogOpen(true);
   };
 
-  const handleUpdateTenant = () => {
+  const handleUpdateTenant = async () => {
     if (!editingTenant) return;
-    setTenants(tenants.map(t => t.id === editingTenant.id ? editingTenant : t));
-    setIsEditDialogOpen(false);
-    setEditingTenant(null);
+    setIsSubmitting(true);
+    try {
+      const updatedData = await apiUpdateTenant(editingTenant.id, editingTenant);
+      setTenants(tenants.map(t => t.id === updatedData.id ? updatedData : t));
+      setIsEditDialogOpen(false);
+      setEditingTenant(null);
+    } catch (error) {
+      console.error('Failed to update tenant:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const openDeleteDialog = (tenant: Tenant) => {
@@ -74,11 +96,19 @@ export function TenantsManagement() {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!tenantToDelete) return;
-    setTenants(tenants.filter(t => t.id !== tenantToDelete.id));
-    setIsDeleteDialogOpen(false);
-    setTenantToDelete(null);
+    setIsSubmitting(true);
+    try {
+      await apiDeleteTenant(tenantToDelete.id);
+      setTenants(tenants.filter(t => t.id !== tenantToDelete.id));
+      setIsDeleteDialogOpen(false);
+      setTenantToDelete(null);
+    } catch (error) {
+      console.error('Failed to delete tenant:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -201,10 +231,13 @@ export function TenantsManagement() {
               </div>
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} disabled={isSubmitting}>
                 Cancel
               </Button>
-              <Button onClick={handleAddTenant}>Add Tenant</Button>
+              <Button onClick={handleAddTenant} disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Add Tenant
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -300,10 +333,13 @@ export function TenantsManagement() {
             </div>
           )}
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button onClick={handleUpdateTenant}>Save Changes</Button>
+            <Button onClick={handleUpdateTenant} disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Save Changes
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -317,10 +353,11 @@ export function TenantsManagement() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleConfirmDelete}>
+            <Button variant="destructive" onClick={handleConfirmDelete} disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Delete
             </Button>
           </div>
@@ -333,58 +370,72 @@ export function TenantsManagement() {
           <CardDescription>Complete list of tenants in your property</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Unit</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead>CNIC</TableHead>
-                <TableHead>Monthly Rent</TableHead>
-                <TableHead>Agreement Period</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {tenants.map((tenant) => (
-                <TableRow key={tenant.id}>
-                  <TableCell>{tenant.name}</TableCell>
-                  <TableCell>{tenant.unit}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1 text-sm">
-                      <Phone className="w-3 h-3" />
-                      {tenant.phone}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1 text-sm">
-                      <CreditCard className="w-3 h-3" />
-                      {tenant.cnic}
-                    </div>
-                  </TableCell>
-                  <TableCell>Rs. {tenant.monthlyRent.toLocaleString()}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1 text-sm">
-                      <Calendar className="w-3 h-3" />
-                      {new Date(tenant.agreementStart).toLocaleDateString()} - {new Date(tenant.agreementEnd).toLocaleDateString()}
-                    </div>
-                  </TableCell>
-                  <TableCell>{getStatusBadge(tenant.status)}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => openEditDialog(tenant)}>
-                        <Pencil className="w-4 h-4 text-blue-500" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => openDeleteDialog(tenant)}>
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </TableCell>
+          {isLoading ? (
+            <div className="flex justify-center items-center py-8">
+              <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Unit</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>CNIC</TableHead>
+                  <TableHead>Monthly Rent</TableHead>
+                  <TableHead>Agreement Period</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {tenants.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+                      No tenants found. Click "Add Tenant" to get started.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  tenants.map((tenant) => (
+                    <TableRow key={tenant.id}>
+                      <TableCell>{tenant.name}</TableCell>
+                      <TableCell>{tenant.unit}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1 text-sm">
+                          <Phone className="w-3 h-3" />
+                          {tenant.phone}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1 text-sm">
+                          <CreditCard className="w-3 h-3" />
+                          {tenant.cnic}
+                        </div>
+                      </TableCell>
+                      <TableCell>Rs. {tenant.monthlyRent.toLocaleString()}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1 text-sm">
+                          <Calendar className="w-3 h-3" />
+                          {new Date(tenant.agreementStart).toLocaleDateString()} - {new Date(tenant.agreementEnd).toLocaleDateString()}
+                        </div>
+                      </TableCell>
+                      <TableCell>{getStatusBadge(tenant.status)}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button variant="ghost" size="icon" onClick={() => openEditDialog(tenant)}>
+                            <Pencil className="w-4 h-4 text-blue-500" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => openDeleteDialog(tenant)}>
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>
