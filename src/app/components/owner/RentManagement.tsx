@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { CheckCircle, XCircle, Clock } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, RotateCcw } from 'lucide-react';
 import { mockRentPayments, RentPayment } from '../../data/mockData';
 
 export function RentManagement() {
@@ -13,6 +13,14 @@ export function RentManagement() {
     setPayments(payments.map(p =>
       p.id === id
         ? { ...p, status: 'paid', paidDate: new Date().toISOString().split('T')[0] }
+        : p
+    ));
+  };
+
+  const handleMarkAsPending = (id: string) => {
+    setPayments(payments.map(p =>
+      p.id === id
+        ? { ...p, status: 'pending', paidDate: undefined }
         : p
     ));
   };
@@ -119,14 +127,26 @@ export function RentManagement() {
                   <TableCell>{getStatusBadge(payment.status)}</TableCell>
                   <TableCell>{payment.paidDate || '-'}</TableCell>
                   <TableCell>
-                    {payment.status === 'pending' && (
-                      <Button
-                        size="sm"
-                        onClick={() => handleMarkAsPaid(payment.id)}
-                      >
-                        Mark as Paid
-                      </Button>
-                    )}
+                    <div className="flex gap-2">
+                      {payment.status === 'pending' && (
+                        <Button
+                          size="sm"
+                          onClick={() => handleMarkAsPaid(payment.id)}
+                        >
+                          Mark as Paid
+                        </Button>
+                      )}
+                      {payment.status === 'paid' && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          title="Undo payment"
+                          onClick={() => handleMarkAsPending(payment.id)}
+                        >
+                          <RotateCcw className="w-4 h-4 text-gray-500" />
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

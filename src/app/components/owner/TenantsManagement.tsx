@@ -6,7 +6,7 @@ import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { Plus, Phone, CreditCard, Calendar } from 'lucide-react';
+import { Plus, Phone, CreditCard, Calendar, Pencil, Trash2 } from 'lucide-react';
 import { mockTenants, Tenant } from '../../data/mockData';
 
 export function TenantsManagement() {
@@ -22,6 +22,12 @@ export function TenantsManagement() {
     agreementEnd: '',
     securityDeposit: 0,
   });
+
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [tenantToDelete, setTenantToDelete] = useState<Tenant | null>(null);
 
   const handleAddTenant = () => {
     const tenant: Tenant = {
@@ -49,6 +55,30 @@ export function TenantsManagement() {
       agreementEnd: '',
       securityDeposit: 0,
     });
+  };
+
+  const openEditDialog = (tenant: Tenant) => {
+    setEditingTenant(tenant);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateTenant = () => {
+    if (!editingTenant) return;
+    setTenants(tenants.map(t => t.id === editingTenant.id ? editingTenant : t));
+    setIsEditDialogOpen(false);
+    setEditingTenant(null);
+  };
+
+  const openDeleteDialog = (tenant: Tenant) => {
+    setTenantToDelete(tenant);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!tenantToDelete) return;
+    setTenants(tenants.filter(t => t.id !== tenantToDelete.id));
+    setIsDeleteDialogOpen(false);
+    setTenantToDelete(null);
   };
 
   const getStatusBadge = (status: string) => {
@@ -180,6 +210,123 @@ export function TenantsManagement() {
         </Dialog>
       </div>
 
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Tenant</DialogTitle>
+            <DialogDescription>Modify the details of the tenant</DialogDescription>
+          </DialogHeader>
+          {editingTenant && (
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-name">Tenant Name</Label>
+                  <Input
+                    id="edit-name"
+                    value={editingTenant.name}
+                    onChange={(e) => setEditingTenant({ ...editingTenant, name: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-unit">Unit/Shop</Label>
+                  <Input
+                    id="edit-unit"
+                    value={editingTenant.unit}
+                    onChange={(e) => setEditingTenant({ ...editingTenant, unit: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-phone">Phone Number</Label>
+                  <Input
+                    id="edit-phone"
+                    value={editingTenant.phone}
+                    onChange={(e) => setEditingTenant({ ...editingTenant, phone: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-cnic">CNIC</Label>
+                  <Input
+                    id="edit-cnic"
+                    value={editingTenant.cnic}
+                    onChange={(e) => setEditingTenant({ ...editingTenant, cnic: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-rent">Monthly Rent (Rs.)</Label>
+                  <Input
+                    id="edit-rent"
+                    type="number"
+                    value={editingTenant.monthlyRent}
+                    onChange={(e) => setEditingTenant({ ...editingTenant, monthlyRent: Number(e.target.value) })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-deposit">Security Deposit (Rs.)</Label>
+                  <Input
+                    id="edit-deposit"
+                    type="number"
+                    value={editingTenant.securityDeposit}
+                    onChange={(e) => setEditingTenant({ ...editingTenant, securityDeposit: Number(e.target.value) })}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-start">Agreement Start</Label>
+                  <Input
+                    id="edit-start"
+                    type="date"
+                    value={editingTenant.agreementStart}
+                    onChange={(e) => setEditingTenant({ ...editingTenant, agreementStart: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-end">Agreement End</Label>
+                  <Input
+                    id="edit-end"
+                    type="date"
+                    value={editingTenant.agreementEnd}
+                    onChange={(e) => setEditingTenant({ ...editingTenant, agreementEnd: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateTenant}>Save Changes</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Tenant</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete {tenantToDelete?.name}? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleConfirmDelete}>
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Card>
         <CardHeader>
           <CardTitle>All Tenants</CardTitle>
@@ -196,6 +343,7 @@ export function TenantsManagement() {
                 <TableHead>Monthly Rent</TableHead>
                 <TableHead>Agreement Period</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -223,6 +371,16 @@ export function TenantsManagement() {
                     </div>
                   </TableCell>
                   <TableCell>{getStatusBadge(tenant.status)}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button variant="ghost" size="icon" onClick={() => openEditDialog(tenant)}>
+                        <Pencil className="w-4 h-4 text-blue-500" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => openDeleteDialog(tenant)}>
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
