@@ -8,7 +8,7 @@ import { TenantAgreement } from './tenant/TenantAgreement';
 import { TenantMaintenance } from './tenant/TenantMaintenance';
 import { TenantBills } from './tenant/TenantBills';
 import { ChatbotComponent } from './shared/ChatbotComponent';
-import { mockTenants } from '../data/mockData';
+import { mockTenants } from '../data/types';
 
 const TENANT_SIDEBAR_ITEMS: SidebarItem[] = [
   { id: 'agreement', label: 'My Agreement', icon: <FileText className="w-5 h-5" /> },
@@ -21,7 +21,8 @@ export function TenantPortal() {
   const { tenantId } = useParams();
   const [activeTab, setActiveTab] = useState('agreement');
 
-  const tenant = mockTenants.find(t => t.id === tenantId);
+  const parsedTenantId = Number(tenantId);
+  const tenant = mockTenants.find(t => t.id === parsedTenantId);
 
   if (!tenant) {
     return (
@@ -37,8 +38,8 @@ export function TenantPortal() {
   const renderContent = () => {
     switch (activeTab) {
       case 'agreement': return <TenantAgreement tenant={tenant} />;
-      case 'maintenance': return <TenantMaintenance tenantId={tenantId!} tenantName={tenant.name} unit={tenant.unit} />;
-      case 'bills': return <TenantBills tenantId={tenantId!} />;
+      case 'maintenance': return <TenantMaintenance tenantId={parsedTenantId} tenantName={tenant.name} unit={tenant.unit} />;
+      case 'bills': return <TenantBills tenantId={parsedTenantId} />;
       default: return <TenantAgreement tenant={tenant} />;
     }
   };

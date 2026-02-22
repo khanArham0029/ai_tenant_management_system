@@ -26,3 +26,14 @@ dist-ssr
 # env
 .env
 .env.*
+
+# Python / Backend
+backend/__pycache__/
+backend/*.py[cod]
+backend/*$py.class
+backend/.pytest_cache/
+backend/tenant_management.db
+backend/alembic/
+backend/.venv/
+backend/venv/
+backend/env/

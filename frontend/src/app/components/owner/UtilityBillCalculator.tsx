@@ -6,14 +6,14 @@ import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Zap, Flame, Calculator, Plus } from 'lucide-react';
-import { mockUtilityReadings, mockTenants, UtilityReading } from '../../data/mockData';
+import { mockUtilityReadings, mockTenants, UtilityReading } from '../../data/types';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 
 export function UtilityBillCalculator() {
   const [readings, setReadings] = useState<UtilityReading[]>(mockUtilityReadings);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newReading, setNewReading] = useState({
-    tenantId: '',
+    tenantId: 0,
     month: '',
     electricityUnits: 0,
     gasUnits: 0,
@@ -30,8 +30,8 @@ export function UtilityBillCalculator() {
     const totalBill = electricityBill + gasBill;
 
     const reading: UtilityReading = {
-      id: String(Date.now()),
-      tenantId: newReading.tenantId,
+      id: Date.now(),
+      tenantId: Number(newReading.tenantId),
       tenantName: tenant.name,
       unit: tenant.unit,
       month: newReading.month,
@@ -47,7 +47,7 @@ export function UtilityBillCalculator() {
     setReadings([reading, ...readings]);
     setIsAddDialogOpen(false);
     setNewReading({
-      tenantId: '',
+      tenantId: 0,
       month: '',
       electricityUnits: 0,
       gasUnits: 0,
@@ -83,15 +83,15 @@ export function UtilityBillCalculator() {
               <div className="space-y-2">
                 <Label htmlFor="tenant-select">Select Tenant</Label>
                 <Select
-                  value={newReading.tenantId}
-                  onValueChange={(value) => setNewReading({ ...newReading, tenantId: value })}
+                  value={newReading.tenantId ? String(newReading.tenantId) : ''}
+                  onValueChange={(value) => setNewReading({ ...newReading, tenantId: Number(value) })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select tenant" />
                   </SelectTrigger>
                   <SelectContent>
                     {mockTenants.map(tenant => (
-                      <SelectItem key={tenant.id} value={tenant.id}>
+                      <SelectItem key={tenant.id} value={String(tenant.id)}>
                         {tenant.name} - {tenant.unit}
                       </SelectItem>
                     ))}

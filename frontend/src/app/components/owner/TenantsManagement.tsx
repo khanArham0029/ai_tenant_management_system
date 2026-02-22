@@ -7,7 +7,7 @@ import { Badge } from '../ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Plus, Phone, CreditCard, Calendar, Pencil, Trash2, Loader2 } from 'lucide-react';
-import { Tenant } from '../../data/mockData';
+import { Tenant } from '../../data/types';
 import { getTenants, addTenant as apiAddTenant, updateTenant as apiUpdateTenant, deleteTenant as apiDeleteTenant } from '../../services/api';
 
 export function TenantsManagement() {

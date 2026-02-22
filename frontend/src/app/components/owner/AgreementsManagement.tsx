@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { FileText, Calendar, AlertTriangle, Download } from 'lucide-react';
-import { mockTenants } from '../../data/mockData';
+import { mockTenants } from '../../data/types';
 
 export function AgreementsManagement() {
   const getStatusBadge = (status: string) => {

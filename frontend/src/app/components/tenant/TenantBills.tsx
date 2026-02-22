@@ -1,10 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Zap, Flame, DollarSign } from 'lucide-react';
-import { mockUtilityReadings } from '../../data/mockData';
+import { mockUtilityReadings } from '../../data/types';
 
 interface TenantBillsProps {
-  tenantId: string;
+  tenantId: number;
 }
 
 export function TenantBills({ tenantId }: TenantBillsProps) {

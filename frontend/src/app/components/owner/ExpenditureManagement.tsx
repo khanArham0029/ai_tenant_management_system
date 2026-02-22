@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -7,12 +7,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Badge } from '../ui/badge';
-import { Plus, TrendingDown, Pencil, Trash2 } from 'lucide-react';
-import { mockExpenditures, Expenditure } from '../../data/mockData';
+import { Plus, TrendingDown, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { Expenditure } from '../../data/types';
+import { getExpenditures, addExpenditure as apiAddExpenditure, updateExpenditure as apiUpdateExpenditure, deleteExpenditure as apiDeleteExpenditure } from '../../services/api';
 import { Textarea } from '../ui/textarea';
 
 export function ExpenditureManagement() {
-  const [expenditures, setExpenditures] = useState<Expenditure[]>(mockExpenditures);
+  const [expenditures, setExpenditures] = useState<Expenditure[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newExpenditure, setNewExpenditure] = useState<Partial<Expenditure>>({
     date: '',
@@ -28,25 +31,40 @@ export function ExpenditureManagement() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [expenditureToDelete, setExpenditureToDelete] = useState<Expenditure | null>(null);
 
-  const handleAddExpenditure = () => {
-    const expenditure: Expenditure = {
-      id: String(Date.now()),
-      date: newExpenditure.date || new Date().toISOString().split('T')[0],
-      category: newExpenditure.category || '',
-      description: newExpenditure.description || '',
-      amount: newExpenditure.amount || 0,
-      type: newExpenditure.type || 'other',
-    };
+  useEffect(() => {
+    fetchExpenditures();
+  }, []);
 
-    setExpenditures([expenditure, ...expenditures]);
-    setIsAddDialogOpen(false);
-    setNewExpenditure({
-      date: '',
-      category: '',
-      description: '',
-      amount: 0,
-      type: 'other',
-    });
+  const fetchExpenditures = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getExpenditures();
+      setExpenditures(data);
+    } catch (error) {
+      console.error('Failed to fetch expenditures:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddExpenditure = async () => {
+    setIsSubmitting(true);
+    try {
+      const newCreatedExp = await apiAddExpenditure(newExpenditure);
+      setExpenditures([newCreatedExp, ...expenditures]);
+      setIsAddDialogOpen(false);
+      setNewExpenditure({
+        date: '',
+        category: '',
+        description: '',
+        amount: 0,
+        type: 'other',
+      });
+    } catch (error) {
+      console.error('Failed to add expenditure:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const openEditDialog = (expenditure: Expenditure) => {
@@ -54,11 +72,19 @@ export function ExpenditureManagement() {
     setIsEditDialogOpen(true);
   };
 
-  const handleUpdateExpenditure = () => {
+  const handleUpdateExpenditure = async () => {
     if (!editingExpenditure) return;
-    setExpenditures(expenditures.map(e => e.id === editingExpenditure.id ? editingExpenditure : e));
-    setIsEditDialogOpen(false);
-    setEditingExpenditure(null);
+    setIsSubmitting(true);
+    try {
+      const updatedData = await apiUpdateExpenditure(editingExpenditure.id, editingExpenditure);
+      setExpenditures(expenditures.map(e => e.id === updatedData.id ? updatedData : e));
+      setIsEditDialogOpen(false);
+      setEditingExpenditure(null);
+    } catch (error) {
+      console.error('Failed to update expenditure:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const openDeleteDialog = (expenditure: Expenditure) => {
@@ -66,11 +92,19 @@ export function ExpenditureManagement() {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!expenditureToDelete) return;
-    setExpenditures(expenditures.filter(e => e.id !== expenditureToDelete.id));
-    setIsDeleteDialogOpen(false);
-    setExpenditureToDelete(null);
+    setIsSubmitting(true);
+    try {
+      await apiDeleteExpenditure(expenditureToDelete.id);
+      setExpenditures(expenditures.filter(e => e.id !== expenditureToDelete.id));
+      setIsDeleteDialogOpen(false);
+      setExpenditureToDelete(null);
+    } catch (error) {
+      console.error('Failed to delete expenditure:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const getTypeBadge = (type: string) => {
@@ -173,10 +207,13 @@ export function ExpenditureManagement() {
               </div>
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} disabled={isSubmitting}>
                 Cancel
               </Button>
-              <Button onClick={handleAddExpenditure}>Add Expenditure</Button>
+              <Button onClick={handleAddExpenditure} disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Add Expenditure
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -248,10 +285,13 @@ export function ExpenditureManagement() {
             </div>
           )}
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button onClick={handleUpdateExpenditure}>Save Changes</Button>
+            <Button onClick={handleUpdateExpenditure} disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Save Changes
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -265,10 +305,11 @@ export function ExpenditureManagement() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleConfirmDelete}>
+            <Button variant="destructive" onClick={handleConfirmDelete} disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Delete
             </Button>
           </div>
@@ -325,44 +366,58 @@ export function ExpenditureManagement() {
           <CardDescription>Complete record of all expenses</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {expenditures.map((expenditure) => (
-                <TableRow key={expenditure.id}>
-                  <TableCell>{new Date(expenditure.date).toLocaleDateString()}</TableCell>
-                  <TableCell>{getTypeBadge(expenditure.type)}</TableCell>
-                  <TableCell>{expenditure.category}</TableCell>
-                  <TableCell>{expenditure.description}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1 text-red-600">
-                      <TrendingDown className="w-3 h-3" />
-                      Rs. {expenditure.amount.toLocaleString()}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => openEditDialog(expenditure)}>
-                        <Pencil className="w-4 h-4 text-blue-500" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => openDeleteDialog(expenditure)}>
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </TableCell>
+          {isLoading ? (
+            <div className="flex justify-center items-center py-8">
+              <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {expenditures.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                      No expenditures found. Click "Add Expenditure" to record one.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  expenditures.map((expenditure) => (
+                    <TableRow key={expenditure.id}>
+                      <TableCell>{new Date(expenditure.date).toLocaleDateString()}</TableCell>
+                      <TableCell>{getTypeBadge(expenditure.type)}</TableCell>
+                      <TableCell>{expenditure.category}</TableCell>
+                      <TableCell>{expenditure.description}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1 text-red-600">
+                          <TrendingDown className="w-3 h-3" />
+                          Rs. {expenditure.amount.toLocaleString()}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button variant="ghost" size="icon" onClick={() => openEditDialog(expenditure)}>
+                            <Pencil className="w-4 h-4 text-blue-500" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => openDeleteDialog(expenditure)}>
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

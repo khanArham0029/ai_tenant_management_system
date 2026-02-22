@@ -1,5 +1,5 @@
 export interface Tenant {
-  id: string;
+  id: number;
   name: string;
   unit: string;
   phone: string;
@@ -12,8 +12,8 @@ export interface Tenant {
 }
 
 export interface RentPayment {
-  id: string;
-  tenantId: string;
+  id: number;
+  tenantId: number;
   tenantName: string;
   month: string;
   amount: number;
@@ -22,7 +22,7 @@ export interface RentPayment {
 }
 
 export interface Expenditure {
-  id: string;
+  id: number;
   date: string;
   category: string;
   description: string;
@@ -31,8 +31,8 @@ export interface Expenditure {
 }
 
 export interface MaintenanceRequest {
-  id: string;
-  tenantId: string;
+  id: number;
+  tenantId: number;
   tenantName: string;
   unit: string;
   category: string;
@@ -43,8 +43,8 @@ export interface MaintenanceRequest {
 }
 
 export interface UtilityReading {
-  id: string;
-  tenantId: string;
+  id: number;
+  tenantId: number;
   tenantName: string;
   unit: string;
   month: string;
@@ -59,7 +59,7 @@ export interface UtilityReading {
 
 export const mockTenants: Tenant[] = [
   {
-    id: '1',
+    id: 1,
     name: 'Ahmed Hassan',
     unit: 'Shop 1',
     phone: '+92 300 1234567',
@@ -71,7 +71,7 @@ export const mockTenants: Tenant[] = [
     securityDeposit: 50000,
   },
   {
-    id: '2',
+    id: 2,
     name: 'Fatima Khan',
     unit: 'Shop 2',
     phone: '+92 321 7654321',
@@ -83,7 +83,7 @@ export const mockTenants: Tenant[] = [
     securityDeposit: 60000,
   },
   {
-    id: '3',
+    id: 3,
     name: 'Muhammad Ali',
     unit: 'Shop 3',
     phone: '+92 333 9876543',
@@ -95,7 +95,7 @@ export const mockTenants: Tenant[] = [
     securityDeposit: 40000,
   },
   {
-    id: '4',
+    id: 4,
     name: 'Ayesha Malik',
     unit: 'Shop 4',
     phone: '+92 345 1122334',
@@ -110,16 +110,16 @@ export const mockTenants: Tenant[] = [
 
 export const mockRentPayments: RentPayment[] = [
   {
-    id: '1',
-    tenantId: '1',
+    id: 1,
+    tenantId: 1,
     tenantName: 'Ahmed Hassan',
     month: 'February 2026',
     amount: 25000,
     status: 'pending',
   },
   {
-    id: '2',
-    tenantId: '2',
+    id: 2,
+    tenantId: 2,
     tenantName: 'Fatima Khan',
     month: 'February 2026',
     amount: 30000,
@@ -127,8 +127,8 @@ export const mockRentPayments: RentPayment[] = [
     paidDate: '2026-02-01',
   },
   {
-    id: '3',
-    tenantId: '3',
+    id: 3,
+    tenantId: 3,
     tenantName: 'Muhammad Ali',
     month: 'February 2026',
     amount: 20000,
@@ -136,16 +136,16 @@ export const mockRentPayments: RentPayment[] = [
     paidDate: '2026-02-05',
   },
   {
-    id: '4',
-    tenantId: '4',
+    id: 4,
+    tenantId: 4,
     tenantName: 'Ayesha Malik',
     month: 'February 2026',
     amount: 28000,
     status: 'pending',
   },
   {
-    id: '5',
-    tenantId: '1',
+    id: 5,
+    tenantId: 1,
     tenantName: 'Ahmed Hassan',
     month: 'January 2026',
     amount: 25000,
@@ -153,8 +153,8 @@ export const mockRentPayments: RentPayment[] = [
     paidDate: '2026-01-10',
   },
   {
-    id: '6',
-    tenantId: '2',
+    id: 6,
+    tenantId: 2,
     tenantName: 'Fatima Khan',
     month: 'January 2026',
     amount: 30000,
@@ -165,7 +165,7 @@ export const mockRentPayments: RentPayment[] = [
 
 export const mockExpenditures: Expenditure[] = [
   {
-    id: '1',
+    id: 1,
     date: '2026-02-15',
     category: 'Building Maintenance',
     description: 'Roof repair work',
@@ -173,7 +173,7 @@ export const mockExpenditures: Expenditure[] = [
     type: 'maintenance',
   },
   {
-    id: '2',
+    id: 2,
     date: '2026-02-10',
     category: 'Property Tax',
     description: 'Q1 2026 property tax',
@@ -181,7 +181,7 @@ export const mockExpenditures: Expenditure[] = [
     type: 'tax',
   },
   {
-    id: '3',
+    id: 3,
     date: '2026-02-05',
     category: 'Electricity',
     description: 'Common area electricity bill',
@@ -189,7 +189,7 @@ export const mockExpenditures: Expenditure[] = [
     type: 'utility',
   },
   {
-    id: '4',
+    id: 4,
     date: '2026-01-28',
     category: 'Plumbing',
     description: 'Water tank cleaning',
@@ -197,7 +197,7 @@ export const mockExpenditures: Expenditure[] = [
     type: 'maintenance',
   },
   {
-    id: '5',
+    id: 5,
     date: '2026-01-20',
     category: 'Security',
     description: 'Security guard salary',
@@ -208,8 +208,8 @@ export const mockExpenditures: Expenditure[] = [
 
 export const mockMaintenanceRequests: MaintenanceRequest[] = [
   {
-    id: '1',
-    tenantId: '1',
+    id: 1,
+    tenantId: 1,
     tenantName: 'Ahmed Hassan',
     unit: 'Shop 1',
     category: 'Electrical',
@@ -219,8 +219,8 @@ export const mockMaintenanceRequests: MaintenanceRequest[] = [
     priority: 'medium',
   },
   {
-    id: '2',
-    tenantId: '3',
+    id: 2,
+    tenantId: 3,
     tenantName: 'Muhammad Ali',
     unit: 'Shop 3',
     category: 'Plumbing',
@@ -230,8 +230,8 @@ export const mockMaintenanceRequests: MaintenanceRequest[] = [
     priority: 'high',
   },
   {
-    id: '3',
-    tenantId: '2',
+    id: 3,
+    tenantId: 2,
     tenantName: 'Fatima Khan',
     unit: 'Shop 2',
     category: 'AC/Cooling',
@@ -241,8 +241,8 @@ export const mockMaintenanceRequests: MaintenanceRequest[] = [
     priority: 'low',
   },
   {
-    id: '4',
-    tenantId: '4',
+    id: 4,
+    tenantId: 4,
     tenantName: 'Ayesha Malik',
     unit: 'Shop 4',
     category: 'General',
@@ -255,8 +255,8 @@ export const mockMaintenanceRequests: MaintenanceRequest[] = [
 
 export const mockUtilityReadings: UtilityReading[] = [
   {
-    id: '1',
-    tenantId: '1',
+    id: 1,
+    tenantId: 1,
     tenantName: 'Ahmed Hassan',
     unit: 'Shop 1',
     month: 'January 2026',
@@ -269,8 +269,8 @@ export const mockUtilityReadings: UtilityReading[] = [
     totalBill: 11100,
   },
   {
-    id: '2',
-    tenantId: '2',
+    id: 2,
+    tenantId: 2,
     tenantName: 'Fatima Khan',
     unit: 'Shop 2',
     month: 'January 2026',
@@ -283,8 +283,8 @@ export const mockUtilityReadings: UtilityReading[] = [
     totalBill: 13110,
   },
   {
-    id: '3',
-    tenantId: '3',
+    id: 3,
+    tenantId: 3,
     tenantName: 'Muhammad Ali',
     unit: 'Shop 3',
     month: 'January 2026',
@@ -297,8 +297,8 @@ export const mockUtilityReadings: UtilityReading[] = [
     totalBill: 9340,
   },
   {
-    id: '4',
-    tenantId: '4',
+    id: 4,
+    tenantId: 4,
     tenantName: 'Ayesha Malik',
     unit: 'Shop 4',
     month: 'January 2026',

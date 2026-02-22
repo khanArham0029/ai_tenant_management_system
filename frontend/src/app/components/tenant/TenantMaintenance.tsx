@@ -8,10 +8,10 @@ import { Textarea } from '../ui/textarea';
 import { Badge } from '../ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Plus, CheckCircle, XCircle, Clock } from 'lucide-react';
-import { mockMaintenanceRequests, MaintenanceRequest } from '../../data/mockData';
+import { mockMaintenanceRequests, MaintenanceRequest } from '../../data/types';
 
 interface TenantMaintenanceProps {
-  tenantId: string;
+  tenantId: number;
   tenantName: string;
   unit: string;
 }
@@ -29,7 +29,7 @@ export function TenantMaintenance({ tenantId, tenantName, unit }: TenantMaintena
 
   const handleSubmitRequest = () => {
     const request: MaintenanceRequest = {
-      id: String(Date.now()),
+      id: Date.now(),
       tenantId,
       tenantName,
       unit,
@@ -171,7 +171,7 @@ export function TenantMaintenance({ tenantId, tenantName, unit }: TenantMaintena
               <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button 
+              <Button
                 onClick={handleSubmitRequest}
                 disabled={!newRequest.category || !newRequest.description}
               >

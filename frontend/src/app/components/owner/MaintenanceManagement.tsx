@@ -4,7 +4,7 @@ import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react';
-import { mockMaintenanceRequests, MaintenanceRequest } from '../../data/mockData';
+import { mockMaintenanceRequests, MaintenanceRequest } from '../../data/types';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
 
 export function MaintenanceManagement() {
@@ -12,21 +12,21 @@ export function MaintenanceManagement() {
   const [selectedRequest, setSelectedRequest] = useState<MaintenanceRequest | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
 
-  const handleApprove = (id: string) => {
+  const handleApprove = (id: number) => {
     setRequests(requests.map(r =>
       r.id === id ? { ...r, status: 'approved' } : r
     ));
     setIsDetailDialogOpen(false);
   };
 
-  const handleReject = (id: string) => {
+  const handleReject = (id: number) => {
     setRequests(requests.map(r =>
       r.id === id ? { ...r, status: 'rejected' } : r
     ));
     setIsDetailDialogOpen(false);
   };
 
-  const handleComplete = (id: string) => {
+  const handleComplete = (id: number) => {
     setRequests(requests.map(r =>
       r.id === id ? { ...r, status: 'completed' } : r
     ));

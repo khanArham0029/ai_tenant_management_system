@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Download, FileText, Calendar, DollarSign, Shield } from 'lucide-react';
-import { Tenant } from '../../data/mockData';
+import { Tenant } from '../../data/types';
 
 interface TenantAgreementProps {
   tenant: Tenant;
@@ -78,18 +78,18 @@ export function TenantAgreement({ tenant }: TenantAgreementProps) {
           <CardContent className="space-y-3">
             <div>
               <p className="text-sm text-gray-500">Start Date</p>
-              <p className="text-lg">{new Date(tenant.agreementStart).toLocaleDateString('en-PK', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+              <p className="text-lg">{new Date(tenant.agreementStart).toLocaleDateString('en-PK', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
               })}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">End Date</p>
-              <p className="text-lg">{new Date(tenant.agreementEnd).toLocaleDateString('en-PK', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+              <p className="text-lg">{new Date(tenant.agreementEnd).toLocaleDateString('en-PK', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
               })}</p>
             </div>
             <div>

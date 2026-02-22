@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { DollarSign, Users, TrendingUp, AlertCircle, Zap, Flame } from 'lucide-react';
-import { mockTenants, mockRentPayments, mockExpenditures, mockMaintenanceRequests } from '../../data/mockData';
+import { mockTenants, mockRentPayments, mockExpenditures, mockMaintenanceRequests } from '../../data/types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 export function DashboardOverview() {
